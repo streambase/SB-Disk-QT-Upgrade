@@ -8,7 +8,7 @@ This utility will help upgrade disk querytables between versions of StreamBase.
 
             example_table = { 
                 # TableName -> the table to upgrade
-                'TableName' : 'WorkspaceConfigurationTable2',
+                'TableName' : 'NamedPointTable',
 
                 # Schema -> the table's schema in ssql form
                 'Schema' : '''( 
