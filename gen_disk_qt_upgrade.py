@@ -132,13 +132,14 @@ if __name__ == '__main__':
         'skeys' : []
     }
     tables = [wct2, uwct, uct]
+    container = 'GuiLayout'
 
     f = open('upgrade-disk-qt.ssql', 'w')
     f.write(make_ssql_file(tables))
     f.close()
 
     f = open('driver.sh', 'w')
-    f.write(make_shell_file('GuiLayout', tables))
+    f.write(make_shell_file(container, tables))
     f.close()
 
     import os, stat
