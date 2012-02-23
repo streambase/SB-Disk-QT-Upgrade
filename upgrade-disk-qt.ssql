@@ -1,0 +1,111 @@
+---
+---                    THIS IS A GENERATED FILE.
+--- It was created from gen_disk_qt_upgrade.py changes made to this file
+--- will be lost if the generate script is rerun.
+---
+
+CREATE INPUT STREAM ReadAll (
+    start int
+);
+
+--
+-- Begin template for WorkspaceConfigurationTable2
+--
+CREATE SCHEMA WorkspaceConfigurationTable2Schema ( 
+            Id string,
+            Name string,
+            Area string,
+            Description string,
+            Owner string,
+            IsActive boolean,
+            Data blob,
+            Layout blob);
+CREATE TABLE SCHEMA WorkspaceConfigurationTable2TableSchema WorkspaceConfigurationTable2Schema
+	PRIMARY KEY (Id) USING BTREE 
+	SECONDARY KEY (Area) USING BTREE
+	SECONDARY KEY (Owner) USING BTREE
+;
+CREATE DISK TABLE WorkspaceConfigurationTable2 WorkspaceConfigurationTable2TableSchema;
+CREATE OUTPUT STREAM WorkspaceConfigurationTable2ReadOut;
+SELECT WorkspaceConfigurationTable2.*
+FROM ReadAll, WorkspaceConfigurationTable2
+WHERE true INTO WorkspaceConfigurationTable2ReadOut;
+
+CREATE INPUT STREAM WorkspaceConfigurationTable2WriteIn ( 
+            Id string,
+            Name string,
+            Area string,
+            Description string,
+            Owner string,
+            IsActive boolean,
+            Data blob,
+            Layout blob);
+REPLACE INTO WorkspaceConfigurationTable2
+SELECT WorkspaceConfigurationTable2WriteIn.*
+FROM WorkspaceConfigurationTable2WriteIn;
+--
+-- End template for WorkspaceConfigurationTable2
+--
+
+--
+-- Begin template for UserWorkspaceConfigurationTable
+--
+CREATE SCHEMA UserWorkspaceConfigurationTableSchema (
+            Username string,
+            WorkspaceId string,
+            Layout blob,
+            IsActive boolean);
+CREATE TABLE SCHEMA UserWorkspaceConfigurationTableTableSchema UserWorkspaceConfigurationTableSchema
+	PRIMARY KEY (Username, WorkspaceId) USING BTREE 
+;
+CREATE DISK TABLE UserWorkspaceConfigurationTable UserWorkspaceConfigurationTableTableSchema;
+CREATE OUTPUT STREAM UserWorkspaceConfigurationTableReadOut;
+SELECT UserWorkspaceConfigurationTable.*
+FROM ReadAll, UserWorkspaceConfigurationTable
+WHERE true INTO UserWorkspaceConfigurationTableReadOut;
+
+CREATE INPUT STREAM UserWorkspaceConfigurationTableWriteIn (
+            Username string,
+            WorkspaceId string,
+            Layout blob,
+            IsActive boolean);
+REPLACE INTO UserWorkspaceConfigurationTable
+SELECT UserWorkspaceConfigurationTableWriteIn.*
+FROM UserWorkspaceConfigurationTableWriteIn;
+--
+-- End template for UserWorkspaceConfigurationTable
+--
+
+--
+-- Begin template for UserConfigurationTable
+--
+CREATE SCHEMA UserConfigurationTableSchema (
+            Username string,
+            Layout blob);
+CREATE TABLE SCHEMA UserConfigurationTableTableSchema UserConfigurationTableSchema
+	PRIMARY KEY (Username) USING BTREE 
+;
+CREATE DISK TABLE UserConfigurationTable UserConfigurationTableTableSchema;
+CREATE OUTPUT STREAM UserConfigurationTableReadOut;
+SELECT UserConfigurationTable.*
+FROM ReadAll, UserConfigurationTable
+WHERE true INTO UserConfigurationTableReadOut;
+
+CREATE INPUT STREAM UserConfigurationTableWriteIn (
+            Username string,
+            Layout blob);
+REPLACE INTO UserConfigurationTable
+SELECT UserConfigurationTableWriteIn.*
+FROM UserConfigurationTableWriteIn;
+--
+-- End template for UserConfigurationTable
+--
+
+CREATE OUTPUT STREAM Finished ;
+APPLY JAVA "com.streambase.sb.adapter.logger.Log" AS Log (
+    messageIdentifier = "done", 
+    logLevel = "Warn", 
+    customFormat = "", 
+    verbose = "false", 
+    messagePrefix = ""
+) FROM ReadAll INTO Finished;
